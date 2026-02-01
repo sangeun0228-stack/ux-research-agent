@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useMounted } from "@/hooks/useMounted";
 
 interface Message {
   id: string;
@@ -9,13 +10,16 @@ interface Message {
   timestamp: Date;
 }
 
-const INITIAL_MESSAGE: Message = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "안녕하세요. UX 리서치 에이전트입니다. 리서치 목표, 타겟 사용자, 방법론 등을 알려주시면 플랜과 질문 초안을 도와드립니다.",
-  timestamp: new Date(),
-};
+const WELCOME_CONTENT = "안녕하세요. UX 리서치 에이전트입니다. 리서치 목표, 타겟 사용자, 방법론 등을 알려주시면 플랜과 질문 초안을 도와드립니다.";
+
+function createWelcomeMessage(): Message {
+  return {
+    id: "welcome",
+    role: "assistant",
+    content: WELCOME_CONTENT,
+    timestamp: new Date(),
+  };
+}
 
 export default function ChatInterface({
   sessionTitle,
@@ -24,14 +28,17 @@ export default function ChatInterface({
   sessionTitle?: string;
   onSend?: (content: string) => void;
 }) {
-  const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
+  // 페이지가 마운트된 뒤에만 이 컴포넌트가 렌더되므로, 초기화 함수는 클라이언트에서만 실행됨 (Hydration 안전)
+  const [messages, setMessages] = useState<Message[]>(() => [createWelcomeMessage()]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const mounted = useMounted();
 
   useEffect(() => {
+    if (!mounted) return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, mounted]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,10 +104,12 @@ export default function ChatInterface({
                     msg.role === "user" ? "text-white/80" : "text-surface-400"
                   }`}
                 >
-                  {msg.timestamp.toLocaleTimeString("ko-KR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {mounted
+                    ? msg.timestamp.toLocaleTimeString("ko-KR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "--:--"}
                 </p>
               </div>
             </li>

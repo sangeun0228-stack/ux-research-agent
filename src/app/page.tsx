@@ -1,67 +1,122 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useMounted } from "@/hooks/useMounted";
 import Sidebar from "@/components/Sidebar";
-import ChatInterface from "@/components/ChatInterface";
-import type { ResearchSession } from "@/types/research";
+import AnalysisView from "@/components/AnalysisView";
+import {
+  getResearchHistory,
+  saveResearchHistory,
+  type ResearchHistoryItem,
+} from "@/types/research";
+import type { AnalysisResult } from "@/components/AnalysisView";
 
-const MOCK_SESSIONS: ResearchSession[] = [
-  {
-    id: "1",
-    title: "온보딩 플로우 사용성 테스트",
-    summary: "신규 사용자 온보딩 5단계 검증",
-    createdAt: "2025-01-31",
-    messageCount: 12,
-  },
-  {
-    id: "2",
-    title: "결제 페이지 개선 리서치",
-    summary: "결제 이탈률 감소를 위한 인터뷰",
-    createdAt: "2025-01-30",
-    messageCount: 8,
-  },
-  {
-    id: "3",
-    title: "네비게이션 IA 카드 소팅",
-    summary: "정보 아키텍처 검증",
-    createdAt: "2025-01-29",
-    messageCount: 15,
-  },
-  {
-    id: "4",
-    title: "모바일 검색 UX 개선",
-    summary: "검색 결과 페이지 개선 방향",
-    createdAt: "2025-01-28",
-    messageCount: 6,
-  },
-];
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
 
 export default function DashboardPage() {
-  const [sessions] = useState<ResearchSession[]>(MOCK_SESSIONS);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [history, setHistory] = useState<ResearchHistoryItem[]>([]);
+  const [activeHistoryId, setActiveHistoryId] = useState<string | null>(null);
+  const [displayedResult, setDisplayedResult] = useState<AnalysisResult | null>(null);
+  const mounted = useMounted();
 
-  const activeSession = sessions.find((s) => s.id === activeSessionId);
-  const sessionTitle = activeSession?.title ?? null;
+  useEffect(() => {
+    if (!mounted) return;
+    setHistory(getResearchHistory());
+  }, [mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+    saveResearchHistory(history);
+  }, [mounted, history]);
+
+  const handleAnalysisComplete = useCallback(
+    (
+      topic: string,
+      result: AnalysisResult,
+      researchType: ResearchHistoryItem["researchType"]
+    ) => {
+      const newItem: ResearchHistoryItem = {
+        id: generateId(),
+        topic,
+        createdAt: new Date().toISOString(),
+        result,
+        researchType: researchType ?? undefined,
+      };
+      setHistory((prev) => [newItem, ...prev]);
+      setActiveHistoryId(newItem.id);
+      setDisplayedResult(result);
+    },
+    []
+  );
+
+  const handleDeleteHistory = useCallback((id: string) => {
+    setHistory((prev) => prev.filter((h) => h.id !== id));
+    if (activeHistoryId === id) {
+      setActiveHistoryId(null);
+      setDisplayedResult(null);
+    } else {
+      setActiveHistoryId((current) => (current === id ? null : current));
+    }
+  }, [activeHistoryId]);
+
+  const handleSelectHistory = useCallback(
+    (id: string) => {
+      const item = history.find((h) => h.id === id);
+      if (item) {
+        setActiveHistoryId(item.id);
+        setDisplayedResult(item.result);
+      }
+    },
+    [history]
+  );
 
   const handleNewResearch = useCallback(() => {
-    setActiveSessionId(null);
+    setActiveHistoryId(null);
+    setDisplayedResult(null);
   }, []);
 
-  const handleSendMessage = useCallback((_content: string) => {
-    // 추후 API 연동 시 사용
-  }, []);
+  if (!mounted) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-surface-100" aria-busy="true">
+        <aside className="w-[280px] shrink-0 bg-white border-r border-surface-200 animate-pulse">
+          <div className="p-4 border-b border-surface-100 space-y-3">
+            <div className="h-4 bg-surface-200 rounded w-32" />
+            <div className="h-10 bg-surface-200 rounded" />
+            <div className="h-10 bg-surface-200 rounded" />
+          </div>
+          <div className="p-4 space-y-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-16 bg-surface-100 rounded-lg" />
+            ))}
+          </div>
+        </aside>
+        <main className="flex-1 flex flex-col min-w-0 bg-surface-50">
+          <div className="p-6 border-b border-surface-200 bg-white animate-pulse">
+            <div className="max-w-3xl mx-auto flex gap-3">
+              <div className="flex-1 h-14 bg-surface-200 rounded-xl" />
+              <div className="w-28 h-14 bg-surface-200 rounded-xl" />
+            </div>
+          </div>
+          <div className="flex-1 p-6" />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-surface-100">
       <Sidebar
-        sessions={sessions}
-        activeId={activeSessionId ?? undefined}
-        onSelect={setActiveSessionId}
+        history={history}
+        activeId={activeHistoryId}
+        onSelect={handleSelectHistory}
         onNewResearch={handleNewResearch}
+        onDelete={handleDeleteHistory}
       />
-      <ChatInterface
-        sessionTitle={sessionTitle ?? undefined}
-        onSend={handleSendMessage}
+      <AnalysisView
+        displayedResult={displayedResult}
+        onAnalysisComplete={handleAnalysisComplete}
       />
     </div>
   );
