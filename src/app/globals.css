@@ -8,7 +8,12 @@
 }
 
 body {
-  @apply bg-surface-50 text-surface-900 antialiased;
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* 분석 시작 버튼: 글자색이 항상 보이도록 강제 */
+button[type="submit"] {
+  color: #ffffff !important;
 }
 
 /* 스크롤바 스타일 */
@@ -18,9 +23,20 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  @apply bg-surface-100 rounded-full;
+  @apply bg-slate-100 rounded-full;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  @apply bg-surface-300 rounded-full hover:bg-surface-400;
+  @apply bg-slate-300 rounded-full hover:bg-slate-400;
+}
+
+/* 로딩 스켈레톤 반짝임(shimmer) 애니메이션 */
+@keyframes skeleton-shimmer {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.animate-skeleton-shimmer {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }

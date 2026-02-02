@@ -26,6 +26,10 @@ const config: Config = {
           hover: "#0284c7",
           muted: "#e0f2fe",
         },
+        kt: {
+          primary: "#1e40af",
+          light: "#dbeafe",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],

@@ -114,15 +114,15 @@ export default function Sidebar({
   );
 
   return (
-    <aside className="w-[var(--sidebar-width)] shrink-0 flex flex-col h-full bg-white border-r border-surface-200">
-      <div className="p-4 border-b border-surface-100">
-        <h2 className="text-sm font-semibold text-surface-700 uppercase tracking-wider mb-3">
+    <aside className="w-[var(--sidebar-width)] shrink-0 flex flex-col h-full bg-white border-r border-slate-200 shadow-sm">
+      <div className="p-4 border-b border-slate-100">
+        <h2 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3">
           리서치 히스토리
         </h2>
         <button
           type="button"
           onClick={onNewResearch}
-          className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
+          className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg bg-kt-primary text-white text-sm font-medium hover:bg-blue-900 transition-colors"
         >
           <span aria-hidden>+</span>
           새 리서치 시작
@@ -133,11 +133,11 @@ export default function Sidebar({
             placeholder="히스토리 검색..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-surface-200 rounded-lg bg-surface-50 placeholder:text-surface-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kt-primary/20 focus:border-kt-primary"
             aria-label="리서치 히스토리 검색"
           />
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-400 pointer-events-none"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -156,7 +156,7 @@ export default function Sidebar({
       <nav className="flex-1 overflow-y-auto scrollbar-thin p-2" aria-label="리서치 히스토리 목록">
         <ul className="space-y-0.5">
           {filtered.length === 0 ? (
-            <li className="py-6 text-center text-sm text-surface-500">
+            <li className="py-6 text-center text-sm text-slate-500">
               {search ? "검색 결과가 없습니다." : "최근 리서치 내역이 없습니다."}
             </li>
           ) : (
@@ -165,12 +165,12 @@ export default function Sidebar({
                 <div
                   className={`group flex items-start gap-2 w-full p-3 rounded-lg transition-colors border ${
                     activeId === item.id
-                      ? "bg-accent-muted text-accent-hover border-accent/30"
-                      : "text-surface-700 hover:bg-surface-100 border-transparent"
+                      ? "bg-kt-light text-kt-primary border-kt-primary/30"
+                      : "text-slate-700 hover:bg-slate-50 border-transparent"
                   }`}
                 >
                   {item.researchType && (
-                    <span className="mt-0.5 shrink-0 flex items-center justify-center w-5 h-5 rounded bg-surface-100 text-surface-500">
+                    <span className="mt-0.5 shrink-0 flex items-center justify-center w-5 h-5 rounded bg-slate-100 text-slate-500">
                       <ResearchTypeIcon type={item.researchType} />
                     </span>
                   )}
@@ -182,7 +182,7 @@ export default function Sidebar({
                     <span className="block text-sm font-medium truncate">
                       {item.topic}
                     </span>
-                    <span className="flex items-center gap-1.5 mt-1 text-xs text-surface-400">
+                    <span className="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
                       {formatHistoryDate(item.createdAt)}
                     </span>
                   </button>
@@ -192,7 +192,7 @@ export default function Sidebar({
                       e.stopPropagation();
                       onDelete?.(item.id);
                     }}
-                    className="shrink-0 p-1.5 rounded text-surface-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    className="shrink-0 p-1.5 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                     aria-label="이 리서치 내역 삭제"
                   >
                     <TrashIcon className="w-4 h-4" />
